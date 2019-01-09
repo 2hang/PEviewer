@@ -85,3 +85,18 @@ typedef struct _IMAGE_NT_HEADERS {
 }IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;
 
 /*** Section Header ***/
+typedef struct _IMAGE_SECTION_HEADER {
+	BYTE Name[8];
+	union {
+		DWORD PhysicalAddress;
+		DWORD VirualSize;
+	}Misc;
+	DWORD VirtualAddress;
+	DWORD SizeOfRawData;
+	DWORD PointerToRawData;
+	DWORD PointerToRelocations;
+	DWORD PointerToLinenumbers;
+	WORD NumberOfRelocations;
+	WORD NumberOfLinenumbers;
+	DWORD Characteristics;
+}IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
