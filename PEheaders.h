@@ -5,8 +5,7 @@ typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef uint32_t LONG;
 
-
-/*** Dos Header 관련 ***/
+/*** Dos Header ***/
 typedef struct _IMAGE_DOS_HEADER {
 	WORD e_magic; //  MZ
 	WORD e_cblp;
@@ -29,7 +28,7 @@ typedef struct _IMAGE_DOS_HEADER {
 	LONG e_lfanew;
 } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
 
-/*** NT Header 관련 ***/
+/*** NT Header ***/
 typedef struct _IMAGE_FILE_HEADER {
 	WORD Machine;
 	WORD NumberOfSections;
@@ -46,8 +45,7 @@ typedef struct _IMAGE_DATA_DIRECTORY {
 }IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
 
 typedef struct _IMAGE_OPTIONAL_HEADER {
-	WORD Magic; // 0x10b - optional_header32
-				// 0x20b - optional_header64
+	WORD Magic; // 0x10b - optional_header32 // 0x20b - optional_header64
 	BYTE MajorLinkerVersion;
 	BYTE MinorLinkerVersion;
 	DWORD SizeOfCode;
@@ -76,7 +74,7 @@ typedef struct _IMAGE_OPTIONAL_HEADER {
 	DWORD SizeOfHeapReserve;
 	DWORD SizeOfHeapCommit;
 	DWORD LoaderFlags;
-	DWORD NumberOfRvaAndSizes; // DataDirectory 배열 수
+	DWORD NumberOfRvaAndSizes; // DataDirectory arrayNum
 	IMAGE_DATA_DIRECTORY DataDirectory[16];
 }IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
@@ -86,4 +84,4 @@ typedef struct _IMAGE_NT_HEADERS {
 	IMAGE_OPTIONAL_HEADER32 OptionalHeader;
 }IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;
 
-/*** Section Header 관련 ***/
+/*** Section Header ***/
