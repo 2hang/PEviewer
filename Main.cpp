@@ -1,6 +1,4 @@
-#include "PEheaders.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "Utilities.h"
 
 #define PATH "C:/Users/HY/Desktop/01_扁檬_府滚教/02_Hello_World!_府滚教/bin/HelloWorld.exe"
 

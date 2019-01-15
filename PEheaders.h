@@ -1,13 +1,16 @@
 #include <stdint.h>
-
 typedef uint8_t BYTE;
 typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef uint32_t LONG;
 
+/*
+	Commented members are essential to execute PE file.
+*/
+
 /*** Dos Header ***/
 typedef struct _IMAGE_DOS_HEADER {
-	WORD e_magic; //  MZ
+	WORD e_magic; //  MZ  //
 	WORD e_cblp;
 	WORD e_cp;
 	WORD e_crlc;
@@ -25,18 +28,18 @@ typedef struct _IMAGE_DOS_HEADER {
 	WORD e_oemid;
 	WORD e_oeminfo;
 	WORD e_res2[10];
-	LONG e_lfanew;
+	LONG e_lfanew; // NTheader offset //
 } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
 
 /*** NT Header ***/
 typedef struct _IMAGE_FILE_HEADER {
-	WORD Machine;
-	WORD NumberOfSections;
+	WORD Machine; // MACRO - 32bit Intel x86 : 0x014C //
+	WORD NumberOfSections; // num of sections //
 	DWORD TimeDateStamp;
 	DWORD PointerToSymbolTable;
 	DWORD NumberOfSymbols;
-	WORD SizeOfOptionalHeader;
-	WORD Characteristics;
+	WORD SizeOfOptionalHeader; // IMAGE_OPTIONAL_HEADER size //
+	WORD Characteristics; // MACRO //
 }IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
 
 typedef struct _IMAGE_DATA_DIRECTORY {
@@ -51,12 +54,12 @@ typedef struct _IMAGE_OPTIONAL_HEADER {
 	DWORD SizeOfCode;
 	DWORD SizeOfInitializedData;
 	DWORD SizeOfUninitializedData;
-	DWORD AddressOfEntryPoint;
+	DWORD AddressOfEntryPoint; // EP RVA //
 	DWORD BaseOfCode;
 	DWORD BaseOfData;
-	DWORD ImageBase;
-	DWORD SectionAlignment;
-	DWORD FileAlignment;
+	DWORD ImageBase; // Image Base//
+	DWORD SectionAlignment; // Memory section alignment //
+	DWORD FileAlignment; // File section alignment //
 	WORD MajorOperatingSystemVersion;
 	WORD MinorOperatingSystemVersion;
 	WORD MajorImageVersion;
@@ -64,22 +67,38 @@ typedef struct _IMAGE_OPTIONAL_HEADER {
 	WORD MajorSubsystemVersion;
 	WORD MinorSubsystemVersion;
 	DWORD Win32VersionValue;
-	DWORD SizeOfImage;
-	DWORD SizeOfHeaders;
+	DWORD SizeOfImage; // On memory //
+	DWORD SizeOfHeaders; // PE header total size //
 	DWORD CheckSum;
-	WORD Subsystem;
+	WORD Subsystem; // Driver file or GUI or CUI //
 	WORD DllCharacteristics;
 	DWORD SizeOfStackReserve;
 	DWORD SizeOfStackCommit;
 	DWORD SizeOfHeapReserve;
 	DWORD SizeOfHeapCommit;
 	DWORD LoaderFlags;
-	DWORD NumberOfRvaAndSizes; // DataDirectory arrayNum
-	IMAGE_DATA_DIRECTORY DataDirectory[16];
+	DWORD NumberOfRvaAndSizes; // Number of DataDirectory array //
+	// export, import, resource, TLS !! //
+	IMAGE_DATA_DIRECTORY ExportDirectory;
+	IMAGE_DATA_DIRECTORY ImportDirectory;
+	IMAGE_DATA_DIRECTORY ResourceDirectory;
+	IMAGE_DATA_DIRECTORY ExceptionDirectory;
+	IMAGE_DATA_DIRECTORY SecurityDirectory;
+	IMAGE_DATA_DIRECTORY BaserelocDirectory;
+	IMAGE_DATA_DIRECTORY DebugDirectory;
+	IMAGE_DATA_DIRECTORY CopyrightDirectory;
+	IMAGE_DATA_DIRECTORY GlobalptrDirectory;
+	IMAGE_DATA_DIRECTORY TLSDirectory;
+	IMAGE_DATA_DIRECTORY LoadConfigDirectory;
+	IMAGE_DATA_DIRECTORY BoundImportDirectory;
+	IMAGE_DATA_DIRECTORY IATDirectory;
+	IMAGE_DATA_DIRECTORY DelayImportDirectory;
+	IMAGE_DATA_DIRECTORY ComDescriptorDirectory;
+	IMAGE_DATA_DIRECTORY ReservedDirectory;
 }IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
 typedef struct _IMAGE_NT_HEADERS {
-	DWORD Signature; // PE00
+	DWORD Signature; // PE //
 	IMAGE_FILE_HEADER FileHeader;
 	IMAGE_OPTIONAL_HEADER32 OptionalHeader;
 }IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;
@@ -87,16 +106,13 @@ typedef struct _IMAGE_NT_HEADERS {
 /*** Section Header ***/
 typedef struct _IMAGE_SECTION_HEADER {
 	BYTE Name[8];
-	union {
-		DWORD PhysicalAddress;
-		DWORD VirualSize;
-	}Misc;
-	DWORD VirtualAddress;
-	DWORD SizeOfRawData;
-	DWORD PointerToRawData;
+	DWORD VirualSize; // Section size on memory //
+	DWORD VirtualAddress; // Section RVA //
+	DWORD SizeOfRawData; // Section size in file //
+	DWORD PointerToRawData; // Section RAW //
 	DWORD PointerToRelocations;
 	DWORD PointerToLinenumbers;
 	WORD NumberOfRelocations;
 	WORD NumberOfLinenumbers;
-	DWORD Characteristics;
+	DWORD Characteristics; // Characteristics of section //
 }IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
