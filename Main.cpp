@@ -4,38 +4,40 @@
 
 int main() {
 	FILE *in;
-	BYTE ch;
-	WORD mz;
-	int count = 0;
+	IMAGE_DOS_HEADER dosHeader;
 
-	//읽기 전용으로 열기
+	// 읽기 전용으로 열기 //
 	if ((in = fopen(PATH, "rb")) == NULL) {
 		fputs("FOPEN ERROR\n", stderr);
 		exit(999);
 	}
 
-	//little endian -> big endian 으로 저장
-	BYTE *ptr = (BYTE *)&mz;
-	for (int i = 0; i < 2; i++) {
-		ch = fgetc(in);
-		*ptr = ch;
-		ptr++;
-		//printf("%c", ch);
+	////////// Parsing the DOS header //////////
+	dosHeader.e_magic = parseAndStoreWORD(in);
+	dosHeader.e_cblp = parseAndStoreWORD(in);
+	dosHeader.e_cp = parseAndStoreWORD(in);
+	dosHeader.e_crlc = parseAndStoreWORD(in);
+	dosHeader.e_cparhdr = parseAndStoreWORD(in);
+	dosHeader.e_minalloc = parseAndStoreWORD(in);
+	dosHeader.e_maxalloc = parseAndStoreWORD(in);
+	dosHeader.e_ss = parseAndStoreWORD(in);
+	dosHeader.e_sp = parseAndStoreWORD(in);
+	dosHeader.e_csum = parseAndStoreWORD(in);
+	dosHeader.e_ip = parseAndStoreWORD(in);
+	dosHeader.e_cs = parseAndStoreWORD(in);
+	dosHeader.e_lfarlc = parseAndStoreWORD(in);
+	dosHeader.e_ovno = parseAndStoreWORD(in);
+	for (int i = 0; i < 4; i++) {
+		dosHeader.e_res[i] = parseAndStoreWORD(in);
 	}
-	printf("%X", mz);
-
-	/*
-	while ((ch = fgetc(in)) != EOF) {
-		
-		// 프린트하기
-		printf("%02X ", ch);
-		if (count == 14) {
-			printf("\n");
-		}
-		count = (count + 1) % 15;
-		
+	dosHeader.e_oemid = parseAndStoreWORD(in);
+	dosHeader.e_oeminfo = parseAndStoreWORD(in);
+	for (int i = 0; i < 10; i++) {
+		dosHeader.e_res2[i] = parseAndStoreWORD(in);
 	}
-	*/
+	dosHeader.e_lfanew = parseAndStoreLONG(in);
+	////////////////////////////////////////////////
+	
 	fclose(in);
 	return 0;
 }
