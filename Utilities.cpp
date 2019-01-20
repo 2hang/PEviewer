@@ -73,3 +73,8 @@ LONG parseAndStoreLONG(FILE *_in) {
 	return _long;
 	//printf("\n");
 }
+
+IMAGE_SECTION_HEADER *allocSectionHeaders(int _num) {
+	IMAGE_SECTION_HEADER *headers = (IMAGE_SECTION_HEADER *)malloc(sizeof(IMAGE_SECTION_HEADER)*_num);
+	return headers;
+}

@@ -79,22 +79,7 @@ typedef struct _IMAGE_OPTIONAL_HEADER {
 	DWORD LoaderFlags;
 	DWORD NumberOfRvaAndSizes; // Number of DataDirectory array //
 	// export, import, resource, TLS !! //
-	IMAGE_DATA_DIRECTORY ExportDirectory;
-	IMAGE_DATA_DIRECTORY ImportDirectory;
-	IMAGE_DATA_DIRECTORY ResourceDirectory;
-	IMAGE_DATA_DIRECTORY ExceptionDirectory;
-	IMAGE_DATA_DIRECTORY SecurityDirectory;
-	IMAGE_DATA_DIRECTORY BaserelocDirectory;
-	IMAGE_DATA_DIRECTORY DebugDirectory;
-	IMAGE_DATA_DIRECTORY CopyrightDirectory;
-	IMAGE_DATA_DIRECTORY GlobalptrDirectory;
-	IMAGE_DATA_DIRECTORY TLSDirectory;
-	IMAGE_DATA_DIRECTORY LoadConfigDirectory;
-	IMAGE_DATA_DIRECTORY BoundImportDirectory;
-	IMAGE_DATA_DIRECTORY IATDirectory;
-	IMAGE_DATA_DIRECTORY DelayImportDirectory;
-	IMAGE_DATA_DIRECTORY ComDescriptorDirectory;
-	IMAGE_DATA_DIRECTORY ReservedDirectory;
+	IMAGE_DATA_DIRECTORY DataDirectory[16];
 }IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
 typedef struct _IMAGE_NT_HEADERS {
