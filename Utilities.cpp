@@ -78,3 +78,40 @@ IMAGE_SECTION_HEADER *allocSectionHeaders(int _num) {
 	IMAGE_SECTION_HEADER *headers = (IMAGE_SECTION_HEADER *)malloc(sizeof(IMAGE_SECTION_HEADER)*_num);
 	return headers;
 }
+
+int whichSectionRVA(IMAGE_SECTION_HEADER *_sectionsHeaders, int _numOfSections, DWORD _rva) {
+	/*
+		Headers : return -1
+		Section x : return x (0 ~ ) section header index
+	*/
+
+	DWORD sectionOff;
+	for (int i = _numOfSections-1; i >= 0; i--) {
+		sectionOff = _sectionsHeaders[i].VirtualAddress;
+		if (_rva >= sectionOff) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+DWORD RVAtoRAW(IMAGE_NT_HEADERS32 *_ntHeader, 
+	IMAGE_SECTION_HEADER *_sectionsHeaders, 
+	int _whichSection, DWORD _rva) {
+	
+	if (_whichSection == -1) {
+		return _rva;
+	}
+	
+	DWORD virtualOffset = _sectionsHeaders[_whichSection].VirtualAddress;
+	//printf("virtualOffset : %08X\n", virtualOffset);
+	DWORD fileAlignment = _ntHeader->OptionalHeader.FileAlignment;
+	//printf("fileAlignment : %08X\n", fileAlignment);
+	DWORD rawOffset = _sectionsHeaders[_whichSection].PointerToRawData;
+	//printf("rawOffset : %08X\n", rawOffset);
+	rawOffset /= fileAlignment;
+	rawOffset *= fileAlignment;
+	//printf("rawOffset : %08X\n", rawOffset);
+
+	return _rva - virtualOffset + rawOffset;
+}

@@ -110,8 +110,13 @@ int main() {
 		sectionHeaders[k].Characteristics = parseAndStoreDWORD(in);
 	}
 
-	//printf("%08X", ntHeader.OptionalHeader.AddressOfEntryPoint);
-
+	//test
+	DWORD tmpRVA = 0x00008000;
+	int tmp = whichSectionRVA(sectionHeaders, numOfSections, tmpRVA);
+	printf("%d\n", tmp);
+	DWORD tmpRAW = RVAtoRAW(&ntHeader, sectionHeaders, tmp, tmpRVA);
+	printf("%08X\n",tmpRAW);
+	//////
 	fclose(in);
 	free(sectionHeaders);
 	return 0;
