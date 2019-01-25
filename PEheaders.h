@@ -4,6 +4,12 @@ typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef uint32_t LONG;
 
+struct DirectoryInfo {
+	DWORD Rva;
+	DWORD Raw;
+	DWORD Size;
+};
+
 /*
 	Commented members are essential to execute PE file.
 */

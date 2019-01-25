@@ -7,6 +7,21 @@ int main() {
 	IMAGE_DOS_HEADER dosHeader;
 	IMAGE_NT_HEADERS32 ntHeader;
 
+	// Members to display info.
+	DWORD imageBase;
+	DWORD entryPointRVA;
+	DWORD entryPointRAW;
+	DWORD sizeOfImage;
+	DWORD sectionAlignment;
+	DWORD fileAlignment;
+	WORD numberOfSections;
+	WORD characteristics;
+	DWORD sizeOfHeaders;
+	WORD machine;
+	WORD dllCharacteristics;
+	struct DirectoryInfo importTable;
+	struct DirectoryInfo exportTable;
+
 	// File open READ ONLY
 	if ((in = fopen(PATH, "rb")) == NULL) {
 		fputs("FOPEN ERROR\n", stderr);
@@ -90,14 +105,13 @@ int main() {
 	}
 
 	// Make Section Headers
-	int numOfSections = ntHeader.FileHeader.NumberOfSections;
-	IMAGE_SECTION_HEADER *sectionHeaders = allocSectionHeaders(numOfSections);
+	numberOfSections = ntHeader.FileHeader.NumberOfSections;
+	IMAGE_SECTION_HEADER *sectionHeaders = allocSectionHeaders((int)numberOfSections);
 	
 	// Parsing Section Headers from file
-	for (int k = 0; k < numOfSections; k++) {
+	for (int k = 0; k < (int)numberOfSections; k++) {
 		for (int i = 0; i < 8; i++) {
 			sectionHeaders[k].Name[i] = parseAndStoreBYTE(in);
-			//printf("%c", sectionHeaders[k].Name[i]);
 		}
 		sectionHeaders[k].VirualSize = parseAndStoreDWORD(in);
 		sectionHeaders[k].VirtualAddress = parseAndStoreDWORD(in);
@@ -110,13 +124,73 @@ int main() {
 		sectionHeaders[k].Characteristics = parseAndStoreDWORD(in);
 	}
 
-	//test
-	DWORD tmpRVA = 0x00008000;
-	int tmp = whichSectionRVA(sectionHeaders, numOfSections, tmpRVA);
-	printf("%d\n", tmp);
-	DWORD tmpRAW = RVAtoRAW(&ntHeader, sectionHeaders, tmp, tmpRVA);
-	printf("%08X\n",tmpRAW);
-	//////
+	// Arrange the Infos
+	imageBase = ntHeader.OptionalHeader.ImageBase;
+	printf("ImageBase : 0x%08X\n\n",imageBase);
+
+	entryPointRVA =ntHeader.OptionalHeader.AddressOfEntryPoint;
+	printf("Entry Point (RVA) : 0x%08X\n\n", entryPointRVA);
+
+	int which = whichSectionRVA(sectionHeaders, numberOfSections, entryPointRVA);
+	entryPointRAW = RVAtoRAW(&ntHeader, sectionHeaders, which, entryPointRVA);
+	printf("Entry Point (RAW) : 0x%08X\n\n", entryPointRAW);
+
+	sizeOfImage = ntHeader.OptionalHeader.SizeOfImage;
+	printf("Size of Image : 0x%08X\n\n", sizeOfImage);
+
+	sectionAlignment = ntHeader.OptionalHeader.SectionAlignment;
+	printf("Section Alignment : 0x%08X\n\n", sectionAlignment);
+	
+	fileAlignment = ntHeader.OptionalHeader.FileAlignment;
+	printf("File Alignment : 0x%08X\n\n", fileAlignment);
+	
+	printf("Number of Sections : 0x%04X\n\n", numberOfSections);
+
+	characteristics = ntHeader.FileHeader.Characteristics;
+	printFileCharacteristics(characteristics);
+	
+	sizeOfHeaders = ntHeader.OptionalHeader.SizeOfHeaders;
+	printf("\nTotal size of PE Header : 0x%08X\n\n", fileAlignment);
+	
+	machine = ntHeader.FileHeader.Machine;
+	printMachineType(machine);
+	
+	dllCharacteristics = ntHeader.OptionalHeader.DllCharacteristics;
+	printf("\nDLL Charateristics : 0x%04X\n\n", dllCharacteristics);
+
+	importTable.Rva = ntHeader.OptionalHeader.DataDirectory[1].VirtualAddress;
+	which = whichSectionRVA(sectionHeaders, numberOfSections, importTable.Rva);
+	importTable.Raw = RVAtoRAW(&ntHeader, sectionHeaders, which, importTable.Rva);
+	importTable.Size = ntHeader.OptionalHeader.DataDirectory[1].Size;
+
+	printf("------Import Table------\n");
+	printf("RVA : 0x%08X\n",importTable.Rva);
+	printf("RAW : 0x%08X\n", importTable.Raw);
+	printf("Size : 0x%08X\n", importTable.Size);
+
+	exportTable.Rva = ntHeader.OptionalHeader.DataDirectory[0].VirtualAddress;
+	which = whichSectionRVA(sectionHeaders, numberOfSections, exportTable.Rva);
+	exportTable.Raw = RVAtoRAW(&ntHeader, sectionHeaders, which, exportTable.Rva);
+	exportTable.Size = ntHeader.OptionalHeader.DataDirectory[0].Size;
+
+	printf("\n------Export Table------\n");
+	printf("RVA : 0x%08X\n", exportTable.Rva);
+	printf("RAW : 0x%08X\n", exportTable.Raw);
+	printf("Size : 0x%08X\n", exportTable.Size);
+
+	for (int i = 0; i < numberOfSections; i++) {
+		printf("\nSection : ");
+		for (int j = 0; j < 8; j++) {
+			printf("%c", sectionHeaders[i].Name[j]);
+		}
+		printf("\n");
+		printf("Virtual Size : 0x%08X\n", sectionHeaders[i].VirualSize);
+		printf("Virtual Offset : 0x%08X\n", sectionHeaders[i].VirtualAddress);
+		printf("Raw Size : 0x%08X\n", sectionHeaders[i].SizeOfRawData);
+		printf("Raw Offset : 0x%08X\n", sectionHeaders[i].PointerToRawData);
+		printSectionCharacteristics(sectionHeaders[i].Characteristics);
+	}
+	
 	fclose(in);
 	free(sectionHeaders);
 	return 0;

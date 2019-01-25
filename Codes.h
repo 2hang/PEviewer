@@ -1,6 +1,3 @@
-//////// 유틸리티 필요함
-
-
 //IMAGE_FILE_HEADER.Machine
 #define IMAGE_FILE_MACHINE_UNKNOWN 0
 #define IMAGE_FILE_MACHINE_I386 0x014C
