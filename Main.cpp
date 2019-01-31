@@ -185,8 +185,8 @@ int main(int argc,char *argv[]) {
 	printf("Size : 0x%08X\n", importTable.Size);
 
 	fseek(in, importTable.Raw, SEEK_SET);
-	
 	PIDT idt = (PIDT)malloc(importTable.Size);
+	
 	for (int i = 0; i < (importTable.Size / sizeof(IMAGE_IMPORT_DESCRIPTOR)); i++) {
 		idt[i].OriginalFirstThunk = parseAndStoreDWORD(in);
 		idt[i].TimeDateStamp = parseAndStoreDWORD(in);
@@ -224,7 +224,6 @@ int main(int argc,char *argv[]) {
 		printSectionCharacteristics(sectionHeaders[i].Characteristics);
 	}
 	
-	//printf("\n\n%X\n\n", sizeof(IMAGE_IMPORT_DESCRIPTOR));
 
 	fclose(in);
 	free(sectionHeaders);
