@@ -107,3 +107,11 @@ typedef struct _IMAGE_SECTION_HEADER {
 	WORD NumberOfLinenumbers;
 	DWORD Characteristics; // Characteristics of section //
 }IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
+
+typedef struct _IMAGE_IMPORT_DESCRIPTOR {
+	DWORD OriginalFirstThunk; // RVA of INT
+	DWORD TimeDateStamp;
+	DWORD ForwarderChain;
+	DWORD Name; // RVA
+	DWORD FirstThunk; // RVA of IAT
+}IMAGE_IMPORT_DESCRIPTOR, *PIDT;

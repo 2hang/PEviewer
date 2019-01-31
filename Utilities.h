@@ -2,6 +2,7 @@
 #include "Codes.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 BYTE parseAndStoreBYTE(FILE *_in);
 WORD parseAndStoreWORD(FILE *_in);

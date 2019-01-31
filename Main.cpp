@@ -1,8 +1,6 @@
 #include "Utilities.h"
 
-#define PATH "C:/Users/HY/Desktop/01_扁檬_府滚教/02_Hello_World!_府滚教/bin/HelloWorld.exe"
-
-int main() {
+int main(int argc,char *argv[]) {
 	FILE *in;
 	IMAGE_DOS_HEADER dosHeader;
 	IMAGE_NT_HEADERS32 ntHeader;
@@ -22,8 +20,13 @@ int main() {
 	struct DirectoryInfo importTable;
 	struct DirectoryInfo exportTable;
 
+	if (argc != 2) {
+		printf("USAGE : PEVIEWER.exe [Name of PE File]");
+		return -1;
+	}
+
 	// File open READ ONLY
-	if ((in = fopen(PATH, "rb")) == NULL) {
+	if ((in = fopen(argv[1], "rb")) == NULL) {
 		fputs("FOPEN ERROR\n", stderr);
 		exit(999);
 	}
@@ -108,6 +111,9 @@ int main() {
 	numberOfSections = ntHeader.FileHeader.NumberOfSections;
 	IMAGE_SECTION_HEADER *sectionHeaders = allocSectionHeaders((int)numberOfSections);
 	
+	DWORD OptionalStartOffset = dosHeader.e_lfanew + sizeof(DWORD) + sizeof(IMAGE_FILE_HEADER);
+	fseek(in, OptionalStartOffset+(DWORD)ntHeader.FileHeader.SizeOfOptionalHeader, SEEK_SET);
+
 	// Parsing Section Headers from file
 	for (int k = 0; k < (int)numberOfSections; k++) {
 		for (int i = 0; i < 8; i++) {
@@ -158,16 +164,6 @@ int main() {
 	dllCharacteristics = ntHeader.OptionalHeader.DllCharacteristics;
 	printf("\nDLL Charateristics : 0x%04X\n\n", dllCharacteristics);
 
-	importTable.Rva = ntHeader.OptionalHeader.DataDirectory[1].VirtualAddress;
-	which = whichSectionRVA(sectionHeaders, numberOfSections, importTable.Rva);
-	importTable.Raw = RVAtoRAW(&ntHeader, sectionHeaders, which, importTable.Rva);
-	importTable.Size = ntHeader.OptionalHeader.DataDirectory[1].Size;
-
-	printf("------Import Table------\n");
-	printf("RVA : 0x%08X\n",importTable.Rva);
-	printf("RAW : 0x%08X\n", importTable.Raw);
-	printf("Size : 0x%08X\n", importTable.Size);
-
 	exportTable.Rva = ntHeader.OptionalHeader.DataDirectory[0].VirtualAddress;
 	which = whichSectionRVA(sectionHeaders, numberOfSections, exportTable.Rva);
 	exportTable.Raw = RVAtoRAW(&ntHeader, sectionHeaders, which, exportTable.Rva);
@@ -177,6 +173,43 @@ int main() {
 	printf("RVA : 0x%08X\n", exportTable.Rva);
 	printf("RAW : 0x%08X\n", exportTable.Raw);
 	printf("Size : 0x%08X\n", exportTable.Size);
+
+	importTable.Rva = ntHeader.OptionalHeader.DataDirectory[1].VirtualAddress;
+	which = whichSectionRVA(sectionHeaders, numberOfSections, importTable.Rva);
+	importTable.Raw = RVAtoRAW(&ntHeader, sectionHeaders, which, importTable.Rva);
+	importTable.Size = ntHeader.OptionalHeader.DataDirectory[1].Size;
+
+	printf("\n------Import Table------\n");
+	printf("RVA : 0x%08X\n", importTable.Rva);
+	printf("RAW : 0x%08X\n", importTable.Raw);
+	printf("Size : 0x%08X\n", importTable.Size);
+
+	fseek(in, importTable.Raw, SEEK_SET);
+	
+	PIDT idt = (PIDT)malloc(importTable.Size);
+	for (int i = 0; i < (importTable.Size / sizeof(IMAGE_IMPORT_DESCRIPTOR)); i++) {
+		idt[i].OriginalFirstThunk = parseAndStoreDWORD(in);
+		idt[i].TimeDateStamp = parseAndStoreDWORD(in);
+		idt[i].ForwarderChain = parseAndStoreDWORD(in);
+		idt[i].Name = parseAndStoreDWORD(in);
+		idt[i].FirstThunk = parseAndStoreDWORD(in);
+	}
+
+	printf("\nImport DLLs :\n");
+	for (int i = 0; i < (importTable.Size / sizeof(IMAGE_IMPORT_DESCRIPTOR)) - 1; i++) {
+		DWORD off = RVAtoRAW(&ntHeader, sectionHeaders, whichSectionRVA(sectionHeaders, numberOfSections, idt[i].Name), idt[i].Name);
+		printf("	");
+		fseek(in, off, SEEK_SET);
+		BYTE c;
+		while (1) {
+			c = parseAndStoreBYTE(in);
+			if (c == NULL) {
+				printf("\n");
+				break;
+			}
+			printf("%c", c);
+		}
+	}
 
 	for (int i = 0; i < numberOfSections; i++) {
 		printf("\nSection : ");
@@ -191,6 +224,8 @@ int main() {
 		printSectionCharacteristics(sectionHeaders[i].Characteristics);
 	}
 	
+	//printf("\n\n%X\n\n", sizeof(IMAGE_IMPORT_DESCRIPTOR));
+
 	fclose(in);
 	free(sectionHeaders);
 	return 0;
