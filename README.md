@@ -1,16 +1,14 @@
 # PEviewer
 
+Upacked File is OK. But, it can't display DLL file names. It is only for Win32 PE Files.
 
-PEVEIWER.exe 사용 방법
+# PEVEIWER.exe USAGE 
 
+```sh
 $ PEVEIWER.exe [name of pe file]
+```
 
+# REFERENCE
 
-참고
-
-PEview.exe StudPE.exe
-
-
-Upack 파일 분석 가능 
-
-단, DLL 파일 이름 불러오기 X
+- PEview.exe
+- StudPE.exe
