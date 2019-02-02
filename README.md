@@ -1,6 +1,8 @@
 # PEviewer
 
-Upacked File is OK. But, it can't display DLL file names. It is only for Win32 PE Files.
+PEVIEWER analyses PE Header. It is only for Win32 PE Files.
+
+Upacked File is OK. But, it can't display DLL file names. It doesn't decode packing file.
 
 # PEVEIWER.exe USAGE 
 
